@@ -1,0 +1,73 @@
+#!/bin/tcsh
+
+echo "building trigger.html..."
+
+set default=200
+
+if ( ! ($?BEAM) ) then
+  echo "BEAM env variable not set!"
+  setenv BEAM $default
+  echo "Defaulting to BEAM=${BEAM}"
+endif
+
+set fn="trigger.html"
+
+touch $fn
+rm $fn
+touch $fn
+
+echo "<html>" >> $fn
+echo "<head><title>Trigger Plots</title></head>" >> $fn
+echo "<body bgcolor=#CCFFCC>" >> $fn
+
+echo "<a href=../../trgmon12/200/${fn}>R12:pp200</a>" >> $fn
+echo "&nbsp;-&nbsp;<a href=../../trgmon12/500/${fn}>R12:pp510</a>" >> $fn
+echo "&nbsp;-&nbsp;<a href=../../trgmon13/500/${fn}>R13:pp510</a>" >> $fn
+echo "&nbsp;-&nbsp;R15:pp200" >> $fn
+echo "<br /><br />" >> $fn
+
+echo "<a href=runs.html>Run List</a>" >> $fn
+echo "&nbsp;-&nbsp;<a href=shiftlong.html>Shift Log (long)</a>" >> $fn
+echo "&nbsp;-&nbsp;<a href=shiftshort.html>Shift Log (short)</a>" >> $fn
+echo "<br /><br /><a href=th_plots.pdf>Trigger Thresholds [PDF]</a>" >> $fn
+echo "<br /><br /><b>Trigger Event Plots:</b> nTriggers*ps/(BBC*ps)" >> $fn
+echo "<ul>" >> $fn
+echo "<li><b>Blue:</b> epoch divider lines (an epoch is a duration with relatively constant trigger events / BBC)" >> $fn
+echo "<li><b>Black:</b> mean in epoch" >> $fn
+echo "<li>Outliers that drastically alter epoch means are omitted and marked as bad (listed below)" >> $fn
+echo "</ul>" >> $fn
+echo "<img src=ev_canv.png width=80%/><br />" >> $fn
+echo "<br /><br />" >> $fn
+echo "<br /><b>Normalised Trigger Events Plots:</b> nTriggers*ps/(BBC*ps*epochMean)<br />" >> $fn
+echo "<ul>" >> $fn
+echo "<li><b>Black:</b> Unity" >> $fn
+echo "<li><b>Brown:</b> Cut lines" >> $fn
+echo "<li><b>Blue:</b> Epoch lines copied from above" >> $fn
+echo "<li>Points inside cut lines are marked as good" >> $fn
+echo "<li>Points that are zero (not plotted) are not marked bad unless something else marks them bad" >> $fn
+# echo "<li>Other notes:" >> $fn
+  # echo "<ul>" >> $fn
+  # echo "<li> QT2 had stuck bit for runs 14108004-20 (index 222-32)" >> $fn
+  # echo "<li> HT cut lines are generous, since HT events are very low beyond about run 210" >> $fn
+  # echo "</ul>" >> $fn
+echo "</ul>" >> $fn
+echo "<img src=nv_canv.png width=80%/><br />" >> $fn
+echo "<br /><br />" >> $fn
+echo "<br /><b>Trigger Ratios:</b> nTriggers1*ps1/(nTriggers2*ps2)<br />" >> $fn
+echo "<img src=rat_canv.png width=80%/><br />" >> $fn
+echo "<br /><br />" >> $fn
+echo "<br /><b>Trigger Prescales:</b><br />" >> $fn
+echo "<img src=prescale_canv.png width=80%/><br />" >> $fn
+echo "<br /><br />" >> $fn
+echo "<br /><b>Estimated Luminosity:</b> BBC*ps/(26.1 mb)<br />" >> $fn
+echo "<img src=lum_canv.png width=80%/><br /><br />" >> $fn
+echo "<font face=courier>" >> $fn
+echo "<br /><br />" >> $fn
+cat runindex.txt | sed 's/ /\&nbsp;/g;s/$/<br \/>/g' >> $fn
+echo "</font>" >> $fn
+echo "<br /><hr /><br />" >> $fn
+echo "Outliers Removed:<br />" >> $fn
+cat outliers.dat | sed 's/ /\&nbsp;/g;s/$/<br \/>/g' >> $fn
+echo "</body></html>" >> $fn
+echo "---> done building html files"
+echo "---> see runs.html"

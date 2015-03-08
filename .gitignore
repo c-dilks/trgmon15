@@ -1,0 +1,6 @@
+*.dat
+*.root
+*.html
+*.png
+thresh/thfiles/*
+thresh/trgfiles/*
