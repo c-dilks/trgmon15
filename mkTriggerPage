@@ -32,17 +32,18 @@ echo "&nbsp;-&nbsp;<a href=shiftshort.html>Shift Log (short)</a>" >> $fn
 echo "<br /><br /><a href=th_plots.pdf>Trigger Thresholds [PDF]</a>" >> $fn
 echo "<br /><br /><b>Trigger Event Plots:</b> nTriggers*ps/(BBC*ps)" >> $fn
 echo "<ul>" >> $fn
-echo "<li><b>Blue:</b> epoch divider lines (an epoch is a duration with relatively constant trigger events / BBC)" >> $fn
-echo "<li><b>Black:</b> mean in epoch" >> $fn
+echo "<li><b>Blue Lines:</b> epoch divider lines (an epoch is a duration with relatively constant trigger events / BBC)" >> $fn
+echo "<li><b>Black Lines:</b> mean in epoch" >> $fn
+echo "<li><b>Red Points:</b> bad epoch; all runs in such an epoch are marked bad" >> $fn
 echo "<li>Outliers that drastically alter epoch means are omitted and marked as bad (listed below)" >> $fn
 echo "</ul>" >> $fn
 echo "<img src=ev_canv.png width=80%/><br />" >> $fn
 echo "<br /><br />" >> $fn
 echo "<br /><b>Normalised Trigger Events Plots:</b> nTriggers*ps/(BBC*ps*epochMean)<br />" >> $fn
 echo "<ul>" >> $fn
-echo "<li><b>Black:</b> Unity" >> $fn
-echo "<li><b>Brown:</b> Cut lines" >> $fn
-echo "<li><b>Blue:</b> Epoch lines copied from above" >> $fn
+echo "<li><b>Black Lines:</b> Unity" >> $fn
+echo "<li><b>Brown Lines:</b> Cut lines" >> $fn
+echo "<li><b>Blue Lines:</b> Epoch lines copied from above" >> $fn
 echo "<li>Points inside cut lines are marked as good; LED trigger is not used for this QA" >> $fn
 # echo "<li>Other notes:" >> $fn
   # echo "<ul>" >> $fn

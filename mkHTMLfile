@@ -55,7 +55,7 @@ echo "<br /><a href=#bad>Go to Bad Runs</a>" >> $fn
 
 if( ${sh} == "1" ) then
   echo "<br /><br />failcode bits (counted from left to right):<br />" >> $fn
-  echo "bits 1-4: [on_exclusion_list] [mb=0] [nTrig<50] [t<180]<br />" >> $fn
+  echo "bits 1-4: [on_exclusion_list or bad_epoch] [mb=0] [nTrig<50] [t<180]<br />" >> $fn
   echo "bits 5-8: [JP0_out] [JP1_out] [JP2_out] [LgBS1_out]<br />" >> $fn
   echo "bits 9-12: [LgBS2_out] [LgBS3_out] [SmBS1_out] [SmBS2_out]<br />" >> $fn
   echo "bits 12-16: [SmBS3_out] [DiBS_out] [DiJP_out] [unused]<br />" >> $fn

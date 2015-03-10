@@ -1,8 +1,8 @@
 Estimated integrated luminosity for all runs: 7.883977 pb<sup>-1</sup>
-Estimated integrated luminosity for good runs: 7.513383 pb<sup>-1</sup>
+Estimated integrated luminosity for good runs: 6.156423 pb<sup>-1</sup>
 
 Total number of runs: 167
-Number of good runs: 133
+Number of good runs: 112
 
 Run Index <--> Run Number
 ************************************

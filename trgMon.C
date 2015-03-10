@@ -51,7 +51,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   trigger_col[kSmBS3] = kGreen+2;
   trigger_col[kDiBS] = kBlue;
   trigger_col[kDiJP] = kBlue;
-  trigger_col[kLED] = kRed;
+  trigger_col[kLED] = kCyan+2;
 
   ///////////////////////////////////////////////////
   
@@ -146,13 +146,20 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   Int_t epoch[N_EPOCH+1][N_TRIG];
   for(Int_t i=0; i<N_TRIG; i++)
   {
-    epoch[0][i] = iterl;
-    epoch[1][i] = 34;
+    epoch[0][i] = iterl; // beginning of "epoch 0"
+    epoch[1][i] = 34; 
     epoch[2][i] = 71;
-    epoch[3][i] = 107;
-    epoch[4][i] = 135;
-    epoch[5][i] = iterh;
+    epoch[3][i] = 108;
+    epoch[4][i] = 136;
+    epoch[5][i] = iterh; // end of "epoch N_EPOCH"
   };
+
+  /* bad epochs */
+  const Int_t N_BAD_EPOCH=1;
+  Int_t bad_epoch[N_BAD_EPOCH] = {3};
+  /*
+   * epoch 3 -- several hot towers causing high rates
+   */
   ///////////////////////////////////////////////////
 
 
@@ -299,6 +306,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
       };
     };
 
+
     if(PLOT)
     {
       // determine which epoch we are in
@@ -309,6 +317,23 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
         {
           if(index>=epoch[e][i] && index<=epoch[e+1][i] && epoch[e][i]!=epoch[e+1][i])
             current_epoch[i] = e;
+        };
+      };
+
+      // check if it's a bad epoch and mark its runs bad;
+      // if it's not really really off scale, plot it anyway and turn the point colors to red
+      for(Int_t i=0; i<N_TRIG; i++)
+      {
+        for(Int_t e=0; e<N_EPOCH; e++)
+        {
+          for(Int_t b=0; b<N_BAD_EPOCH; b++)
+          {
+            if(bad_epoch[b] == current_epoch[i]) 
+            {
+              badrun[index]=true;
+              failcode[index] = failcode[index] | 0x8000;
+            };
+          };
         };
       };
 
@@ -397,6 +422,14 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
       nv_gr[e][i]->SetMarkerSize(0.5);
       ev_gr[e][i]->SetMarkerColor(trigger_col[i]);
       nv_gr[e][i]->SetMarkerColor(trigger_col[i]);
+      for(Int_t b=0; b<N_BAD_EPOCH; b++)
+      {
+        if(e==bad_epoch[b])
+        {
+          ev_gr[e][i]->SetMarkerColor(kRed);
+          nv_gr[e][i]->SetMarkerColor(kRed);
+        };
+      };
     };
   };
   for(Int_t i=0; i<N_TRIG; i++)
