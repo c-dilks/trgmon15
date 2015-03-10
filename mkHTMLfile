@@ -55,10 +55,10 @@ echo "<br /><a href=#bad>Go to Bad Runs</a>" >> $fn
 
 if( ${sh} == "1" ) then
   echo "<br /><br />failcode bits (counted from left to right):<br />" >> $fn
-  echo "bits 1-4: [on_exclusion_list] [mb=0 or nTrig<50] [t<180] [LED_out]<br />" >> $fn
-  echo "bits 5-8: [RP_out] [DiJP_out] [DiBS_out] [SmBS3_out]<br />" >> $fn
-  echo "bits 9-12: [SmBS2_out] [SmBS1_out] [LgBS3_out] [LgBS2_out]<br />" >> $fn
-  echo "bits 12-16: [LgBS1_out] [JP2_out] [JP1_out] [JP0_out]<br />" >> $fn
+  echo "bits 1-4: [on_exclusion_list] [mb=0] [nTrig<50] [t<180]<br />" >> $fn
+  echo "bits 5-8: [JP0_out] [JP1_out] [JP2_out] [LgBS1_out]<br />" >> $fn
+  echo "bits 9-12: [LgBS2_out] [LgBS3_out] [SmBS1_out] [SmBS2_out]<br />" >> $fn
+  echo "bits 12-16: [SmBS3_out] [DiBS_out] [DiJP_out] [unused]<br />" >> $fn
 endif
 
 echo "<br /><br /><b>Good Runs:</b> <a href=goodruns.dat>(text format)</a><a name=good><br />" >> $fn
@@ -84,10 +84,9 @@ foreach line ( "`cat goodruns.dat`" )
     set smbs3 = `echo "$line" | awk '{print $21" "$22}'`
     set dibs = `echo "$line" | awk '{print $23" "$24}'`
     set dijp = `echo "$line" | awk '{print $25" "$26}'`
-    set rp = `echo "$line" | awk '{print $27" "$28}'`
-    set led = `echo "$line" | awk '{print $29" "$30}'`
-    set mb = `echo "$line" | awk '{print $31" "$32}'`
-    set by = `echo "$line" | awk '{print $33}'`
+    set led = `echo "$line" | awk '{print $27" "$28}'`
+    set mb = `echo "$line" | awk '{print $29" "$30}'`
+    set by = `echo "$line" | awk '{print $31}'`
     set by1 = `echo ${by} | cut -c1-4`
     set by2 = `echo ${by} | cut -c5-8`
     set by3 = `echo ${by} | cut -c9-12`
@@ -111,7 +110,6 @@ foreach line ( "`cat goodruns.dat`" )
     echo "<td><b>SmBS3</b></td>" >> $fn
     echo "<td><b>DiBS</b></td>" >> $fn
     echo "<td><b>DiJP</b></td>" >> $fn
-    echo "<td><b>RP</b></td>" >> $fn
     echo "<td><b>LED</b></td>" >> $fn
     echo "<td><b>BBC</b></td>" >> $fn
     echo "</tr>" >> $fn
@@ -136,7 +134,6 @@ foreach line ( "`cat goodruns.dat`" )
     echo "<td>${smbs3}</td>" >> $fn
     echo "<td>${dibs}</td>" >> $fn
     echo "<td>${dijp}</td>" >> $fn
-    echo "<td>${rp}</td>" >> $fn
     echo "<td>${led}</td>" >> $fn
     echo "<td>${mb}" >> $fn
   else if( ${sh} == "2") then
@@ -171,10 +168,9 @@ foreach line ( "`cat badruns.dat`" )
     set smbs3 = `echo "$line" | awk '{print $21" "$22}'`
     set dibs = `echo "$line" | awk '{print $23" "$24}'`
     set dijp = `echo "$line" | awk '{print $25" "$26}'`
-    set rp = `echo "$line" | awk '{print $27" "$28}'`
-    set led = `echo "$line" | awk '{print $29" "$30}'`
-    set mb = `echo "$line" | awk '{print $31" "$32}'`
-    set by = `echo "$line" | awk '{print $33}'`
+    set led = `echo "$line" | awk '{print $27" "$28}'`
+    set mb = `echo "$line" | awk '{print $29" "$30}'`
+    set by = `echo "$line" | awk '{print $31}'`
     set by1 = `echo ${by} | cut -c1-4`
     set by2 = `echo ${by} | cut -c5-8`
     set by3 = `echo ${by} | cut -c9-12`
@@ -198,7 +194,6 @@ foreach line ( "`cat badruns.dat`" )
     echo "<td><b>SmBS3</b></td>" >> $fn
     echo "<td><b>DiBS</b></td>" >> $fn
     echo "<td><b>DiJP</b></td>" >> $fn
-    echo "<td><b>RP</b></td>" >> $fn
     echo "<td><b>LED</b></td>" >> $fn
     echo "<td><b>BBC</b></td>" >> $fn
     echo "</tr>" >> $fn
@@ -223,7 +218,6 @@ foreach line ( "`cat badruns.dat`" )
     echo "<td>${smbs3}</td>" >> $fn
     echo "<td>${dibs}</td>" >> $fn
     echo "<td>${dijp}</td>" >> $fn
-    echo "<td>${rp}</td>" >> $fn
     echo "<td>${led}</td>" >> $fn
     echo "<td>${mb}" >> $fn
   else if( ${sh} == "2") then

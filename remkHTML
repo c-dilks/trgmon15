@@ -1,6 +1,6 @@
 #!/bin/tcsh
 
-set default=500
+set default=200
 
 if ( ! ($?BEAM) ) then
   echo "BEAM env variable not set!"

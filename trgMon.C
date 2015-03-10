@@ -16,11 +16,11 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
 
   /* trigger list */
   ///////////////////////////////////////////////////
-  const Int_t N_TRIG = 13;
+  const Int_t N_TRIG = 12;
   enum trigger_enum {kJP0,kJP1,kJP2,
                      kLgBS1,kLgBS2,kLgBS3,
                      kSmBS1,kSmBS2,kSmBS3,
-                     kDiBS,kDiJP,kRP,kLED};
+                     kDiBS,kDiJP,kLED};
   trigger_enum trigger;
 
   char trigger_str[N_TRIG][16];
@@ -36,7 +36,6 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   strcpy(trigger_str[kSmBS3],"SmBS3");
   strcpy(trigger_str[kDiBS],"DiBS");
   strcpy(trigger_str[kDiJP],"DiJP");
-  strcpy(trigger_str[kRP],"RP");
   strcpy(trigger_str[kLED],"LED");
   for(Int_t i=0; i<N_TRIG; i++) sprintf(trigger_ps_str[i],"%sps",trigger_str[i]);
 
@@ -52,7 +51,6 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   trigger_col[kSmBS3] = kGreen+2;
   trigger_col[kDiBS] = kBlue;
   trigger_col[kDiJP] = kBlue;
-  trigger_col[kRP] = kCyan+2;
   trigger_col[kLED] = kRed;
 
   ///////////////////////////////////////////////////
@@ -61,12 +59,19 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
 
   /* exclusion list */
   ///////////////////////////////////////////////////
-  const Int_t N_EXCLUDE = 2;
-  Int_t exclusion_list[N_EXCLUDE] = {2,204};
+  const Int_t N_EXCLUDE = 4;
+  Int_t exclusion_list[N_EXCLUDE] = 
+  {
+    16056047,
+    16062008,
+    16064076,
+    16067044
+  };
   /*
-   * 2 -- high in all triggers
-   * 204 -- high in all triggers
-  */
+   * 56047 -- outlier on most triggers
+   * 62008 -- outlier on most triggers
+   * 64076 -- JP2 prescale = 140 (should be 1)
+   * 67044 -- outlier on most triggers
   ///////////////////////////////////////////////////
   
   
@@ -99,18 +104,25 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   Int_t index;
   tr->SetBranchAddress("index",&index);
   tr->GetEntry(0);
-  Int_t iterl = 50;
+  Int_t iterl = index;
   tr->GetEntry(nRuns-1);
   Int_t iterh = index;
   Int_t niter = iterh-iterl;
   printf("plotting run index %d-%d, %d total\n",iterl,iterh,niter);
   const Int_t N_RUNS = nRuns;
 
-  /* initialize fail code
-   * bits 1-13 -- trigger outside range
-   * bit 14 -- run too short
-   * bit 15 -- mb = 0 or number of events < 50 in any trigger (except LED)
-   * bit 16 -- on exclusion list
+  /* initialize fail code (counting left to right)
+   * bit 1 -- on exclusion list
+   * bit 2 -- mb = 0 
+   * bit 3 -- number of events < 50 in any trigger (except LED)
+   * bit 4 -- run too short
+   * bit 5 -- trigger 0 outside of range
+   * bit 6 -- trigger 1 outside of range
+   *    .
+   *    .
+   *    .
+   * bit 15 -- trigger 10 outside of range
+   * bit 16 -- trigger 11 = LED; not QAing with LED, so this bit is unused
    */
   Long_t failcode[N_RUNS];
   for(Int_t r=0; r<N_RUNS; r++) failcode[r]=0;
@@ -130,14 +142,16 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
 
   /* epoch lines */
   ///////////////////////////////////////////////////
-  const Int_t N_EPOCH=3;
+  const Int_t N_EPOCH=5;
   Int_t epoch[N_EPOCH+1][N_TRIG];
   for(Int_t i=0; i<N_TRIG; i++)
   {
     epoch[0][i] = iterl;
-    epoch[1][i] = 190;
-    epoch[2][i] = 255;
-    epoch[3][i] = iterh;
+    epoch[1][i] = 34;
+    epoch[2][i] = 71;
+    epoch[3][i] = 107;
+    epoch[4][i] = 135;
+    epoch[5][i] = iterh;
   };
   ///////////////////////////////////////////////////
 
@@ -148,6 +162,8 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   ///////////////////////////////////////////////////
   Double_t qa_cut_high[N_TRIG];
   Double_t qa_cut_low[N_TRIG];
+  const Double_t QA_PLOT_MAX = 10;
+  const Double_t QA_PLOT_MIN = 0.1;
   ////
   qa_cut_high[kJP0] = 9;
   qa_cut_high[kJP1] = 9;
@@ -160,8 +176,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   qa_cut_high[kSmBS3] = 9;
   qa_cut_high[kDiBS] = 9;
   qa_cut_high[kDiJP] = 9;
-  qa_cut_high[kRP] = 9;
-  qa_cut_high[kLED] = 9;
+  qa_cut_high[kLED] = QA_PLOT_MAX;
   ////
   qa_cut_low[kJP0] = 0.2;
   qa_cut_low[kJP1] = 0.2;
@@ -174,8 +189,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   qa_cut_low[kSmBS3] = 0.2;
   qa_cut_low[kDiBS] = 0.2;
   qa_cut_low[kDiJP] = 0.2;
-  qa_cut_low[kRP] = 0.2;
-  qa_cut_low[kLED] = 0.2;
+  qa_cut_low[kLED] = QA_PLOT_MIN;
   ///////////////////////////////////////////////////
 
 
@@ -184,8 +198,8 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   strcpy(exclusion_list_print,"");
   for(Int_t it=0; it<N_EXCLUDE; it++)
   {
-    if(it+1 == N_EXCLUDE) sprintf(exclusion_list_print,"%sindex==%d",exclusion_list_print,exclusion_list[it]);
-    else sprintf(exclusion_list_print,"%sindex==%d||",exclusion_list_print,exclusion_list[it]);
+    if(it+1 == N_EXCLUDE) sprintf(exclusion_list_print,"%srunnum==%d",exclusion_list_print,exclusion_list[it]);
+    else sprintf(exclusion_list_print,"%srunnum==%d||",exclusion_list_print,exclusion_list[it]);
   };
   printf("%s\n",exclusion_list_print);
   printf("\nOUTLIER LIST:\n");
@@ -235,11 +249,16 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
 
   /* build ev_gr plots */
   Bool_t PLOT;
+  Double_t value;
   Int_t current_epoch[N_TRIG];
   Int_t gr_i[N_EPOCH][N_TRIG];
-  for(Int_t e=0; e<N_EPOCH; e++) 
-    for(Int_t i=0; i<N_TRIG; i++)
-      gr_i[e][i]=0;
+  Double_t ev_mgr_max[N_TRIG];
+  Int_t ev_mgr_max_index[N_TRIG];
+  for(Int_t i=0; i<N_TRIG; i++)
+  {
+    ev_mgr_max[i]=0;
+    for(Int_t e=0; e<N_EPOCH; e++) gr_i[e][i]=0;
+  };
   for(Int_t r=0; r<tr->GetEntries(); r++)
   {
     tr->GetEntry(r);
@@ -249,13 +268,13 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
     if(time < time_cut) 
     {
       PLOT=false;
-      failcode[index] = failcode[index] | 0x2000;
+      failcode[index] = failcode[index] | 0x1000;
     };
 
     // check if run is in exclusion list
     for(Int_t o=0; o<N_EXCLUDE; o++)
     {
-      if(index == exclusion_list[o]) 
+      if(runnum == exclusion_list[o]) 
       {
         PLOT=false;
         failcode[index] = failcode[index] | 0x8000;
@@ -270,13 +289,13 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
     };
 
     // check to see if we have enough events in each
-    // trigger, except for LED trigger
+    // trigger, except for LED
     for(Int_t i=0; i<N_TRIG; i++)
     {
-      if(i != kLED && nev[i] < 50)
+      if(i!=kLED && nev[i]<50)
       {
         PLOT=false;
-        failcode[index] = failcode[index] | 0x4000;
+        failcode[index] = failcode[index] | 0x2000;
       };
     };
 
@@ -298,13 +317,21 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
       {
         if(current_epoch[i]>=0)
         {
-          ev_gr[current_epoch[i]][i]->SetPoint(gr_i[current_epoch[i]][i],index,(nev[i]*nev_ps[i])/(mb*mb_ps));
+          value = (nev[i]*nev_ps[i])/(mb*mb_ps);
+          ev_gr[current_epoch[i]][i]->SetPoint(gr_i[current_epoch[i]][i],index,value);
           (gr_i[current_epoch[i]][i])++;
+          if(value > ev_mgr_max[i])
+          {
+            ev_mgr_max[i] = value;
+            ev_mgr_max_index[i] = index;
+          };
         };
       };
     }
     else badrun[index]=true;
   };
+  for(Int_t i=0; i<N_TRIG; i++) 
+    printf("%s max=%f index=%d\n",trigger_str[i],ev_mgr_max[i],ev_mgr_max_index[i]);
   
 
   /* compute means and build nv_gr plots (normalised ev_gr) */
@@ -322,10 +349,12 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
           ev_gr[e][i]->GetPoint(p,xx,yy);
           yy /= epoch_mean[e][i];
           nv_gr[e][i]->SetPoint(p,xx,yy);
-          if(yy>qa_cut_high[i] || yy<qa_cut_low[i]) 
+
+          // check to see if nv is out of qa cut ranges (for all triggers except LED)
+          if((yy>qa_cut_high[i] || yy<qa_cut_low[i]) && i!=kLED)
           {
             badrun[(Int_t)xx]=true;
-            failcode[(Int_t)xx] = failcode[(Int_t)xx] | (Int_t) pow(2,i);
+            failcode[(Int_t)xx] = failcode[(Int_t)xx] | (Int_t) pow(2,(N_TRIG-i-1));
           };
         };
       };
@@ -351,21 +380,6 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   };
 
 
-  /* obtain ev_mgr maxima */
-  Double_t ev_mgr_max[N_TRIG];
-  for(Int_t i=0; i<N_TRIG; i++)
-  {
-    ev_mgr_max[i] = 0;
-    for(Int_t e=0; e<N_EPOCH; e++)
-    {
-      ev_mgr_max[i] = (ev_gr[e][i]->GetHistogram()->GetMaximum()>ev_mgr_max[i]) ?
-                       ev_gr[e][i]->GetHistogram()->GetMaximum() : ev_mgr_max[i];
-    };
-    printf("%s max = %f\n",trigger_str[i],ev_mgr_max[i]);
-  };
-  printf("\n");
-
-
   /* multigraph aesthetics */
   char ev_mgr_t[N_TRIG][64];
   char nv_mgr_t[N_TRIG][64];
@@ -389,8 +403,8 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   {
     ev_mgr[i]->SetMinimum(0);
     ev_mgr[i]->SetMaximum(ev_mgr_max[i]*1.01);
-    nv_mgr[i]->SetMinimum(0.1);
-    nv_mgr[i]->SetMaximum(10);
+    nv_mgr[i]->SetMinimum(QA_PLOT_MIN);
+    nv_mgr[i]->SetMaximum(QA_PLOT_MAX);
     for(Int_t e=0; e<N_EPOCH; e++)
     {
       //nv_gr[e][i]->GetYaxis()->SetLimits(0.1,10);
@@ -442,8 +456,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
    *
    * 1.JP0     2.LgBS1     3.SmBS1     4.DiBS
    * 5.JP1     6.LgBS2     7.SmBS2     8.DiJP   
-   * 9.JP2     10.LgBS3    11.SmBS3    12.RP
-   * 13.LED
+   * 9.JP2     10.LgBS3    11.SmBS3    12.LED
    *
    */
   Int_t padn[N_TRIG];
@@ -458,12 +471,11 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   padn[kSmBS3] = 11;
   padn[kDiBS] = 4;
   padn[kDiJP] = 8;
-  padn[kRP] = 12;
-  padn[kLED] = 13;
+  padn[kLED] = 12;
 
   // draw canvases
-  TCanvas * ev_canv = new TCanvas("ev_canv","ev_canv",1200,250*(N_TRIG/4+1));
-  TCanvas * nv_canv = new TCanvas("nv_canv","nv_canv",1200,250*(N_TRIG/4+1));
+  TCanvas * ev_canv = new TCanvas("ev_canv","ev_canv",1200,250*((N_TRIG-1)/4+1));
+  TCanvas * nv_canv = new TCanvas("nv_canv","nv_canv",1200,250*((N_TRIG-1)/4+1));
   ev_canv->Clear();
   nv_canv->Clear();
   ev_canv->Divide(4,(N_TRIG-1)/4+1);
@@ -547,8 +559,8 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   {
     tr->GetEntry(i);
     sprintf(printstr,"%d %d %d %d",runnum,index,(Int_t)fill,time);
-    for(Int_t j=0; j<N_TRIG; j++) sprintf(printstr,"%s %d %d",printstr,nev[j],nev_ps[j]);
-    sprintf(printstr,"%s %d %d %16b",printstr,mb,mb_ps,failcode[index]);
+    for(Int_t j=0; j<N_TRIG; j++) sprintf(printstr,"%s %d %.2f",printstr,nev[j],nev_ps[j]);
+    sprintf(printstr,"%s %d %.2f %16b",printstr,mb,mb_ps,failcode[index]);
     if(badrun[index]) gSystem->RedirectOutput("badruns.dat");
     else gSystem->RedirectOutput("goodruns.dat");
     printf("%s\n",printstr);
@@ -557,36 +569,33 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
 
 
   /* ratio plots */
-  const Int_t N_RAT_PLOTS = 24;
+  const Int_t N_RAT_PLOTS = 21;
   Int_t nn[N_RAT_PLOTS]; // numerator plot
   Int_t dd[N_RAT_PLOTS]; // denominator plot
   Color_t ratcol[N_RAT_PLOTS];
   Int_t rpn[N_RAT_PLOTS]; // pad number (4x6 pads in the canvas.. you gotta draw it to understand)
   Int_t ii=0;
-  nn[ii] = kLgBS1;  dd[ii] = kSmBS1;  rpn[ii] = 13;  ratcol[ii++] = kRed;    // LgBSn : SmBSn
-  nn[ii] = kLgBS2;  dd[ii] = kSmBS2;  rpn[ii] = 17;  ratcol[ii++] = kRed;
-  nn[ii] = kLgBS3;  dd[ii] = kSmBS3;  rpn[ii] = 21;  ratcol[ii++] = kRed;
-  nn[ii] = kLgBS1;  dd[ii] = kLgBS3;  rpn[ii] = 1;  ratcol[ii++] = kOrange;    // LgBS : LgBStakeall
-  nn[ii] = kLgBS2;  dd[ii] = kLgBS3;  rpn[ii] = 2;  ratcol[ii++] = kOrange;
-  nn[ii] = kSmBS1;  dd[ii] = kSmBS3;  rpn[ii] = 5;  ratcol[ii++] = kGreen+2;    // SmBS : SmBStakeall
-  nn[ii] = kSmBS2;  dd[ii] = kSmBS3;  rpn[ii] = 6;  ratcol[ii++] = kGreen+2;
-  nn[ii] = kJP0;    dd[ii] = kJP2;    rpn[ii] = 9;  ratcol[ii++] = kMagenta+2;    // JP : JPtakeall
-  nn[ii] = kJP1;    dd[ii] = kJP2;    rpn[ii] = 10; ratcol[ii++] = kMagenta+2;
-  nn[ii] = kDiBS;   dd[ii] = kLgBS1;  rpn[ii] = 14;  ratcol[ii++] = kYellow-2;   // diBS : LgBS
-  nn[ii] = kDiBS;   dd[ii] = kLgBS2;  rpn[ii] = 18;  ratcol[ii++] = kYellow-2;
-  nn[ii] = kDiBS;   dd[ii] = kLgBS3;  rpn[ii] = 22;  ratcol[ii++] = kYellow-2;
-  nn[ii] = kDiBS;   dd[ii] = kSmBS1;  rpn[ii] = 15;  ratcol[ii++] = kGreen-5;    // diBS : SmBS
-  nn[ii] = kDiBS;   dd[ii] = kSmBS2;  rpn[ii] = 19;  ratcol[ii++] = kGreen-5;
-  nn[ii] = kDiBS;   dd[ii] = kSmBS3;  rpn[ii] = 23;  ratcol[ii++] = kGreen-5;
-  nn[ii] = kDiJP;   dd[ii] = kJP0;    rpn[ii] = 16;  ratcol[ii++] = kViolet;     // diJP : JP
-  nn[ii] = kDiJP;   dd[ii] = kJP1;    rpn[ii] = 20;  ratcol[ii++] = kViolet;
-  nn[ii] = kDiJP;   dd[ii] = kJP2;    rpn[ii] = 24;  ratcol[ii++] = kViolet;
-  nn[ii] = kRP;     dd[ii] = kLgBS3;  rpn[ii] = 3;  ratcol[ii++] = kAzure-3;    // RP : takealls
-  nn[ii] = kRP;     dd[ii] = kSmBS3;  rpn[ii] = 7;  ratcol[ii++] = kAzure-3;
-  nn[ii] = kRP;     dd[ii] = kJP2;    rpn[ii] = 11;  ratcol[ii++] = kAzure-3;
-  nn[ii] = kLED;    dd[ii] = kLgBS3;  rpn[ii] = 4;  ratcol[ii++] = kPink+9;    // LED : takealls
-  nn[ii] = kLED;    dd[ii] = kSmBS3;  rpn[ii] = 8;  ratcol[ii++] = kPink+9;
-  nn[ii] = kLED;    dd[ii] = kJP2;    rpn[ii] = 12;  ratcol[ii++] = kPink+9;
+  nn[ii] = kLgBS1;  dd[ii] = kSmBS1;  rpn[ii] = 1;  ratcol[ii++] = kRed;    // LgBSn : SmBSn
+  nn[ii] = kLgBS2;  dd[ii] = kSmBS2;  rpn[ii] = 5;  ratcol[ii++] = kRed;
+  nn[ii] = kLgBS3;  dd[ii] = kSmBS3;  rpn[ii] = 9;  ratcol[ii++] = kRed;
+  nn[ii] = kLgBS1;  dd[ii] = kLgBS3;  rpn[ii] = 13;  ratcol[ii++] = kOrange;    // LgBS : LgBStakeall
+  nn[ii] = kLgBS2;  dd[ii] = kLgBS3;  rpn[ii] = 14;  ratcol[ii++] = kOrange;
+  nn[ii] = kSmBS1;  dd[ii] = kSmBS3;  rpn[ii] = 17;  ratcol[ii++] = kGreen+2;    // SmBS : SmBStakeall
+  nn[ii] = kSmBS2;  dd[ii] = kSmBS3;  rpn[ii] = 18;  ratcol[ii++] = kGreen+2;
+  nn[ii] = kJP0;    dd[ii] = kJP2;    rpn[ii] = 21;  ratcol[ii++] = kMagenta+2;    // JP : JPtakeall
+  nn[ii] = kJP1;    dd[ii] = kJP2;    rpn[ii] = 22; ratcol[ii++] = kMagenta+2;
+  nn[ii] = kDiBS;   dd[ii] = kLgBS1;  rpn[ii] = 2;  ratcol[ii++] = kYellow-2;   // diBS : LgBS
+  nn[ii] = kDiBS;   dd[ii] = kLgBS2;  rpn[ii] = 6;  ratcol[ii++] = kYellow-2;
+  nn[ii] = kDiBS;   dd[ii] = kLgBS3;  rpn[ii] = 10;  ratcol[ii++] = kYellow-2;
+  nn[ii] = kDiBS;   dd[ii] = kSmBS1;  rpn[ii] = 3;  ratcol[ii++] = kGreen-5;    // diBS : SmBS
+  nn[ii] = kDiBS;   dd[ii] = kSmBS2;  rpn[ii] = 7;  ratcol[ii++] = kGreen-5;
+  nn[ii] = kDiBS;   dd[ii] = kSmBS3;  rpn[ii] = 11;  ratcol[ii++] = kGreen-5;
+  nn[ii] = kDiJP;   dd[ii] = kJP0;    rpn[ii] = 4;  ratcol[ii++] = kViolet;     // diJP : JP
+  nn[ii] = kDiJP;   dd[ii] = kJP1;    rpn[ii] = 8;  ratcol[ii++] = kViolet;
+  nn[ii] = kDiJP;   dd[ii] = kJP2;    rpn[ii] = 12;  ratcol[ii++] = kViolet;
+  nn[ii] = kLED;    dd[ii] = kLgBS3;  rpn[ii] = 15;  ratcol[ii++] = kPink+9;    // LED : takealls
+  nn[ii] = kLED;    dd[ii] = kSmBS3;  rpn[ii] = 19;  ratcol[ii++] = kPink+9;
+  nn[ii] = kLED;    dd[ii] = kJP2;    rpn[ii] = 23;  ratcol[ii++] = kPink+9;
 
   
   /* compute ratios */
@@ -641,7 +650,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
 
 
   /* ratio canvas layout */
-  TCanvas * rat_canv = new TCanvas("rat_canv","rat_canv",1200,250*(N_RAT_PLOTS/4+1));
+  TCanvas * rat_canv = new TCanvas("rat_canv","rat_canv",1200,250*((N_RAT_PLOTS-1)/4+1));
   rat_canv->Clear();
   rat_canv->Divide(4,(N_RAT_PLOTS-1)/4+1);
   for(Int_t i=0; i<N_RAT_PLOTS; i++)
@@ -680,7 +689,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
 
   
   /* draw prescale canvas */
-  TCanvas * prescale_canv = new TCanvas("prescale_canv","prescale_canv",1200,250*(N_TRIG/4+1));
+  TCanvas * prescale_canv = new TCanvas("prescale_canv","prescale_canv",1200,250*((N_TRIG-1)/4+1));
   prescale_canv->Clear();
   prescale_canv->Divide(4,(N_TRIG-1)/4+1);
   for(Int_t i=0; i<N_TRIG; i++)
@@ -715,6 +724,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
   lum_canv->Print("lum_canv.png","png");
   rat_canv->Print("rat_canv.png","png");
   prescale_canv->Print("prescale_canv.png","png");
+
   
   /* write rootfile */
   ev_canv->Write();

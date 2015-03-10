@@ -1,100 +1,83 @@
 void DrawThreshPlots(const char * fname="thresh.root")
 {
   TFile *infile = new TFile(fname,"READ");
-  TTree *t = (TTree*)infile->Get("th");
+  TTree *th = (TTree*)infile->Get("th");
   gStyle->SetOptStat(0);
-  Float_t imax = t->GetMaximum("index");
+  Float_t imax = th->GetMaximum("index");
 
-  TGraph *JP0 = new TGraph();
-  TGraph *JP1 = new TGraph();
-  TGraph *JP2 = new TGraph();
-  TGraph *LBitSel = new TGraph();
-  TGraph *LBS1 = new TGraph();
-  TGraph *LBS2 = new TGraph();
-  TGraph *LBS3 = new TGraph();
-  TGraph *SBitSel = new TGraph();
-  TGraph *SBS1 = new TGraph();
-  TGraph *SBS2 = new TGraph();
-  TGraph *SBS3 = new TGraph();
+  TFile * outfile = new TFile("th_plots.root","RECREATE");
+
+  // threshold list
+  //////////////////////////////////////////////////
+  const Int_t N_THRESH = 11;
+  enum thresh_enum {kJP0,kJP1,kJP2,
+                    kLBitSel,kLBS1,kLBS2,kLBS3,
+                    kSBitSel,kSBS1,kSBS2,kSBS3};
+  thresh_enum thresh;
   
-  JP0->SetTitle("FMS-JP0");
-  JP1->SetTitle("FMS-JP1");
-  JP2->SetTitle("FMS-JP2");
-  LBitSel->SetTitle("FMSlarge-BitSelect");
-  LBS1->SetTitle("FMSlarge-BS-th1");
-  LBS2->SetTitle("FMSlarge-BS-th2");
-  LBS3->SetTitle("FMSlarge-BS-th3");
-  SBitSel->SetTitle("FMSsmall-BitSelect");
-  SBS1->SetTitle("FMSsmall-BS-th1");
-  SBS2->SetTitle("FMSsmall-BS-th2");
-  SBS3->SetTitle("FMSsmall-BS-th3");
+  char thresh_str[N_THRESH][32];
+  strcpy(thresh_str[kJP0],"FMS-JP0");
+  strcpy(thresh_str[kJP1],"FMS-JP1");
+  strcpy(thresh_str[kJP2],"FMS-JP2");
+  strcpy(thresh_str[kLBitSel],"FMSlarge-BitSelect");
+  strcpy(thresh_str[kLBS1],"FMSlarge-BS-th1");
+  strcpy(thresh_str[kLBS2],"FMSlarge-BS-th2");
+  strcpy(thresh_str[kLBS3],"FMSlarge-BS-th3");
+  strcpy(thresh_str[kSBitSel],"FMSsmall-BitSelect");
+  strcpy(thresh_str[kSBS1],"FMSsmall-BS-th1");
+  strcpy(thresh_str[kSBS2],"FMSsmall-BS-th2");
+  strcpy(thresh_str[kSBS3],"FMSsmall-BS-th3");
+
+  char thresh_br[N_THRESH][32];
+  strcpy(thresh_br[kJP0],"JP0");
+  strcpy(thresh_br[kJP1],"JP1");
+  strcpy(thresh_br[kJP2],"JP2");
+  strcpy(thresh_br[kLBitSel],"LBitSel");
+  strcpy(thresh_br[kLBS1],"LBS1");
+  strcpy(thresh_br[kLBS2],"LBS2");
+  strcpy(thresh_br[kLBS3],"LBS3");
+  strcpy(thresh_br[kSBitSel],"SBitSel");
+  strcpy(thresh_br[kSBS1],"SBS1");
+  strcpy(thresh_br[kSBS2],"SBS2");
+  strcpy(thresh_br[kSBS3],"SBS3");
+  //////////////////////////////////////////////////
 
 
-  JP0->SetLineColor(kRed);
-  JP1->SetLineColor(kRed);
-  JP2->SetLineColor(kRed);
-  LBitSel->SetLineColor(kRed);
-  LBS1->SetLineColor(kRed);
-  LBS2->SetLineColor(kRed);
-  LBS3->SetLineColor(kRed);
-  SBitSel->SetLineColor(kRed);
-  SBS1->SetLineColor(kRed);
-  SBS2->SetLineColor(kRed);
-  SBS3->SetLineColor(kRed);
-
+  // define graphs and set branch addresses
+  TGraph * thresh_gr[11];
+  Float_t fthresh[N_THRESH];
+  for(Int_t i=0; i<N_THRESH; i++)
+  {
+    thresh_gr[i] = new TGraph();
+    thresh_gr[i]->SetTitle(thresh_str[i]);
+    thresh_gr[i]->SetName(thresh_br[i]);
+    thresh_gr[i]->SetLineColor(kRed);
+    thresh_gr[i]->SetLineWidth(2);
+    th->SetBranchAddress(thresh_br[i],&(fthresh[i]));
+  };
   Float_t findex;
-  Float_t fJP0;
-  Float_t fJP1;
-  Float_t fJP2;
-  Float_t fLBitSel;
-  Float_t fLBS1;
-  Float_t fLBS2;
-  Float_t fLBS3;
-  Float_t fSBitSel;
-  Float_t fSBS1;
-  Float_t fSBS2;
-  Float_t fSBS3;
-
   th->SetBranchAddress("index",&findex);
-  th->SetBranchAddress("JP0",&fJP0);
-  th->SetBranchAddress("JP1",&fJP1);
-  th->SetBranchAddress("JP2",&fJP2);
-  th->SetBranchAddress("LBitSel",&fLBitSel);
-  th->SetBranchAddress("LBS1",&fLBS1);
-  th->SetBranchAddress("LBS2",&fLBS2);
-  th->SetBranchAddress("LBS3",&fLBS3);
-  th->SetBranchAddress("SBitSel",&fSBitSel);
-  th->SetBranchAddress("SBS1",&fSBS1);
-  th->SetBranchAddress("SBS2",&fSBS2);
-  th->SetBranchAddress("SBS3",&fSBS3);
 
+
+  // tree loop
   for(Int_t i=0; i<th->GetEntries(); i++)
   {
     th->GetEntry(i);
-    JP0->SetPoint(i,findex,fJP0);
-    JP1->SetPoint(i,findex,fJP1);
-    JP2->SetPoint(i,findex,fJP2);
-    LBitSel->SetPoint(i,findex,fLBitSel);
-    LBS1->SetPoint(i,findex,fLBS1);
-    LBS2->SetPoint(i,findex,fLBS2);
-    LBS3->SetPoint(i,findex,fLBS3);
-    SBitSel->SetPoint(i,findex,fSBitSel);
-    SBS1->SetPoint(i,findex,fSBS1);
-    SBS2->SetPoint(i,findex,fSBS2);
-    SBS3->SetPoint(i,findex,fSBS3);
+    for(Int_t j=0; j<N_THRESH; j++) 
+      thresh_gr[j]->SetPoint(i,findex,fthresh[j]);
   };
     
+  // draw pdf
   TCanvas *cc = new TCanvas("cc","cc",700,500);
   cc->SetGrid();
-  JP0->Draw("AL"); cc->Print("th_plots.pdf(","pdf");
-  JP1->Draw("AL"); cc->Print("th_plots.pdf","pdf");
-  JP2->Draw("AL"); cc->Print("th_plots.pdf","pdf");
-  LBitSel->Draw("AL"); cc->Print("th_plots.pdf","pdf");
-  LBS1->Draw("AL"); cc->Print("th_plots.pdf","pdf");
-  LBS2->Draw("AL"); cc->Print("th_plots.pdf","pdf");
-  LBS3->Draw("AL"); cc->Print("th_plots.pdf","pdf");
-  SBitSel->Draw("AL"); cc->Print("th_plots.pdf","pdf");
-  SBS1->Draw("AL"); cc->Print("th_plots.pdf","pdf");
-  SBS2->Draw("AL"); cc->Print("th_plots.pdf","pdf");
-  SBS3->Draw("AL"); cc->Print("th_plots.pdf)","pdf");
+  char pdfname[32];
+  for(Int_t i=0; i<N_THRESH; i++)
+  {
+    if(i==0) strcpy(pdfname,"th_plots.pdf(");
+    else if (i+1==N_THRESH) strcpy(pdfname,"th_plots.pdf)");
+    else strcpy(pdfname,"th_plots.pdf");
+    thresh_gr[i]->Draw("AL");
+    cc->Print(pdfname,"pdf");
+    thresh_gr[i]->Write();
+  };
 };

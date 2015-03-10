@@ -9,7 +9,8 @@ if ( ! ($?BEAM) ) then
 endif
 
 #set runtype = "pp${BEAM}_production_2013|pp${BEAM}_production_2013a|pp${BEAM}_production_fms_2013|pp${BEAM}_production_2013_noendcap"
-set runtype="production_pp200trans_2015|production_pp200long_2015"
+#set runtype="production_pp200trans_2015|production_pp200long_2015"
+set runtype="trans"
 \rm *.dat
 
 # obtain data from online
@@ -20,7 +21,7 @@ mysql --host onldb.starp.bnl.gov --port 3501 RunLog -e\
 mysql --host onldb.starp.bnl.gov --port 3501 RunLog -e\
   "SELECT runNumber,blueEnergy,blueFillNumber FROM beamInfo"\
   > beamInfo.dat
-foreach trg ( "FMS-JP0" "FMS-JP1" "FMS-JP2" "FMS-lg-bs1" "FMS-lg-bs2" "FMS-lg-bs3" "FMS-sm-bs1" "FMS-sm-bs2" "FMS-sm-bs3" "FMS-DiBS" "FMS-DiJP" "FMS_RP" "FMS-LED" "BBCMB" )
+foreach trg ( "FMS-JP0" "FMS-JP1" "FMS-JP2" "FMS-lg-bs1" "FMS-lg-bs2" "FMS-lg-bs3" "FMS-sm-bs1" "FMS-sm-bs2" "FMS-sm-bs3" "FMS-DiBS" "FMS-DiJP" "FMS-LED" "BBCMB" )
   echo " ${trg} triggers obtained"
   mysql --host onldb.starp.bnl.gov --port 3501 RunLog -e\
   "SELECT runNumber,numberOfEvents,prescale FROM l0TriggerSet WHERE name='${trg}'"\
@@ -43,7 +44,7 @@ foreach line ( "`cat runlist.dat`" )
   set fill = `grep $rn beamInfo.dat | head -n1 | awk '{print $3}'`
   set day = `echo $rn | cut -c3-5`
   set run = `echo $rn | cut -c6-8`
-  foreach trg ( "FMS-JP0" "FMS-JP1" "FMS-JP2" "FMS-lg-bs1" "FMS-lg-bs2" "FMS-lg-bs3" "FMS-sm-bs1" "FMS-sm-bs2" "FMS-sm-bs3" "FMS-DiBS" "FMS-DiJP" "FMS_RP" "FMS-LED" "BBCMB" )
+  foreach trg ( "FMS-JP0" "FMS-JP1" "FMS-JP2" "FMS-lg-bs1" "FMS-lg-bs2" "FMS-lg-bs3" "FMS-sm-bs1" "FMS-sm-bs2" "FMS-sm-bs3" "FMS-DiBS" "FMS-DiJP" "FMS-LED" "BBCMB" )
     set tmp = `grep $rn $trg.dat | awk '{print $2" "$3}'`
     set trg2 = `echo $trg | sed 's/-//g'`
     set $trg2 = "$tmp"
@@ -55,7 +56,7 @@ foreach line ( "`cat runlist.dat`" )
 
   if ( "$BBCMB" == "0" ) continue
 
-  echo "$iter $rn $day $run $type $fill $E $t $FMSJP0 $FMSJP1 $FMSJP2 $FMSlgbs1 $FMSlgbs2 $FMSlgbs3 $FMSsmbs1 $FMSsmbs2 $FMSsmbs3 $FMSDiBS $FMSDiJP $FMS_RP $FMSLED $BBCMB" >> trigger.dat
+  echo "$iter $rn $day $run $type $fill $E $t $FMSJP0 $FMSJP1 $FMSJP2 $FMSlgbs1 $FMSlgbs2 $FMSlgbs3 $FMSsmbs1 $FMSsmbs2 $FMSsmbs3 $FMSDiBS $FMSDiJP $FMSLED $BBCMB" >> trigger.dat
   echo " $rn"
   @ iter++
 end
