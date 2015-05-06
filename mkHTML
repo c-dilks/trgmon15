@@ -10,8 +10,8 @@ endif
 
 root -b -q 'trgMon.C('${BEAM}')'
 ./mkHTMLfile runs.html 1
-./mkHTMLfile shiftlong.html 2
-./mkHTMLfile shiftshort.html 3
+#./mkHTMLfile shiftlong.html 2
+#./mkHTMLfile shiftshort.html 3
 ./mkTriggerPage
 
 mv -v *.html *.png *.dat *.pdf runlog.root $BEAM/

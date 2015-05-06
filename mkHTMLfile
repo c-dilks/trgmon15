@@ -39,8 +39,8 @@ echo "<br /><br />" >> $fn
 
 if( ${sh} == "1") then
   echo "Run List" >> $fn
-  echo "&nbsp;-&nbsp;<a href=shiftlong.html>Shift Log (long)</a>" >> $fn
-  echo "&nbsp;-&nbsp;<a href=shiftshort.html>Shift Log (short)</a>" >> $fn
+  #echo "&nbsp;-&nbsp;<a href=shiftlong.html>Shift Log (long)</a>" >> $fn
+  #echo "&nbsp;-&nbsp;<a href=shiftshort.html>Shift Log (short)</a>" >> $fn
 else if( ${sh} == "2") then
   echo "<a href=runs.html>Run List</a>" >> $fn
   echo "&nbsp;-&nbsp;Shift Log (long)" >> $fn
@@ -53,9 +53,11 @@ endif
 echo "<br /><br /><a href=trigger.html>Trigger Plots</a>" >> $fn
 echo "<br /><a href=#bad>Go to Bad Runs</a>" >> $fn
 
+set mb=`head -n1 mb_select`
+
 if( ${sh} == "1" ) then
   echo "<br /><br />failcode bits (counted from left to right):<br />" >> $fn
-  echo "bits 1-4: [on_exclusion_list or bad_epoch] [mb=0] [nTrig<50] [t<180]<br />" >> $fn
+  echo "bits 1-4: [on_exclusion_list or bad_epoch] [$mb=0] [nTrig<50] [t<180]<br />" >> $fn
   echo "bits 5-8: [JP0_out] [JP1_out] [JP2_out] [LgBS1_out]<br />" >> $fn
   echo "bits 9-12: [LgBS2_out] [LgBS3_out] [SmBS1_out] [SmBS2_out]<br />" >> $fn
   echo "bits 12-16: [SmBS3_out] [DiBS_out] [DiJP_out] [unused]<br />" >> $fn
@@ -71,7 +73,7 @@ foreach line ( "`cat goodruns.dat`" )
   @ mod = $counter % 15
   if ( ${sh} == "1" ) then
     set ii = `echo "$line" | awk '{print $2}'`
-    set fi = `echo "$line" | awk '{print $3}'`
+    set fill = `echo "$line" | awk '{print $3}'`
     set tt = `echo "$line" | awk '{print $4}'`
     set jp0 = `echo "$line" | awk '{print $5" "$6}'`
     set jp1 = `echo "$line" | awk '{print $7" "$8}'`
@@ -85,8 +87,11 @@ foreach line ( "`cat goodruns.dat`" )
     set dibs = `echo "$line" | awk '{print $23" "$24}'`
     set dijp = `echo "$line" | awk '{print $25" "$26}'`
     set led = `echo "$line" | awk '{print $27" "$28}'`
-    set mb = `echo "$line" | awk '{print $29" "$30}'`
-    set by = `echo "$line" | awk '{print $31}'`
+    set bbcmb = `echo "$line" | awk '{print $29" "$30}'`
+    set zdcmb = `echo "$line" | awk '{print $31" "$32}'`
+    set vpdmb = `echo "$line" | awk '{print $33" "$34}'`
+    set by = `echo "$line" | awk '{print $35}'`
+    set typ = `echo "$line" | awk '{print $36}'`
     set by1 = `echo ${by} | cut -c1-4`
     set by2 = `echo ${by} | cut -c5-8`
     set by3 = `echo ${by} | cut -c9-12`
@@ -97,6 +102,8 @@ foreach line ( "`cat goodruns.dat`" )
     echo "<tr align=${align} valign=${valign} bgcolor=#AAAAAA>" >> $fn
     echo "<td><b>Run Number</b></td><td><b>RL</b></td><td><b>SL</b></td>" >> $fn
     echo "<td><b>i</b></td>" >> $fn
+    echo "<td><b>fill</b></td>" >> $fn
+    echo "<td><b>config</b></td>" >> $fn
     echo "<td><b>t</b></td>" >> $fn
     echo "<td><b>failcode</b></td>" >> $fn
     echo "<td><b>JP0</b></td>" >> $fn
@@ -111,7 +118,9 @@ foreach line ( "`cat goodruns.dat`" )
     echo "<td><b>DiBS</b></td>" >> $fn
     echo "<td><b>DiJP</b></td>" >> $fn
     echo "<td><b>LED</b></td>" >> $fn
-    echo "<td><b>BBC</b></td>" >> $fn
+    echo "<td><b>BBCMB</b></td>" >> $fn
+    echo "<td><b>ZDCMB</b></td>" >> $fn
+    echo "<td><b>VPDMB</b></td>" >> $fn
     echo "</tr>" >> $fn
   endif
   echo "<tr align=${align} valign=${valign} bgcolor=#EAEAEA>" >> $fn
@@ -121,6 +130,8 @@ foreach line ( "`cat goodruns.dat`" )
   if( ${sh} == "1") then
     echo "<a href=http://online.star.bnl.gov/apps/shiftLog2015/logForFullTextSearch.jsp?text=${rn}>SL</a></td>" >> $fn
     echo "<td>${ii}</td>" >> $fn
+    echo "<td>${fill}</td>" >> $fn
+    echo "<td>${typ}</td>" >> $fn
     echo "<td>${tt}</td>" >> $fn
     echo "<td>${by1}.${by2}.${by3}.${by4}</td>" >> $fn
     echo "<td>${jp0}</td>" >> $fn
@@ -135,11 +146,13 @@ foreach line ( "`cat goodruns.dat`" )
     echo "<td>${dibs}</td>" >> $fn
     echo "<td>${dijp}</td>" >> $fn
     echo "<td>${led}</td>" >> $fn
-    echo "<td>${mb}" >> $fn
+    echo "<td>${bbcmb}</td>" >> $fn
+    echo "<td>${zdcmb}</td>" >> $fn
+    echo "<td>${vpdmb}" >> $fn
   else if( ${sh} == "2") then
-    grep $rn shiftLog.dat | awk '{print substr($0, index($0,$2))}' | sed 's/\\n/<br \/>/g' >> $fn
+    #grep $rn shiftLog.dat | awk '{print substr($0, index($0,$2))}' | sed 's/\\n/<br \/>/g' >> $fn
   else
-    grep $rn shiftLog.dat | awk '{print substr($0, index($0,$2))}' | sed 's/\\n/<br \/>/g;s/http.*$//g' >> $fn
+    #grep $rn shiftLog.dat | awk '{print substr($0, index($0,$2))}' | sed 's/\\n/<br \/>/g;s/http.*$//g' >> $fn
   endif
   echo "</td>" >> $fn
 end
@@ -155,7 +168,7 @@ foreach line ( "`cat badruns.dat`" )
   @ mod = $counter % 15
   if ( ${sh} == "1" ) then
     set ii = `echo "$line" | awk '{print $2}'`
-    set fi = `echo "$line" | awk '{print $3}'`
+    set fill = `echo "$line" | awk '{print $3}'`
     set tt = `echo "$line" | awk '{print $4}'`
     set jp0 = `echo "$line" | awk '{print $5" "$6}'`
     set jp1 = `echo "$line" | awk '{print $7" "$8}'`
@@ -169,8 +182,11 @@ foreach line ( "`cat badruns.dat`" )
     set dibs = `echo "$line" | awk '{print $23" "$24}'`
     set dijp = `echo "$line" | awk '{print $25" "$26}'`
     set led = `echo "$line" | awk '{print $27" "$28}'`
-    set mb = `echo "$line" | awk '{print $29" "$30}'`
-    set by = `echo "$line" | awk '{print $31}'`
+    set bbcmb = `echo "$line" | awk '{print $29" "$30}'`
+    set zdcmb = `echo "$line" | awk '{print $31" "$32}'`
+    set vpdmb = `echo "$line" | awk '{print $33" "$34}'`
+    set by = `echo "$line" | awk '{print $35}'`
+    set typ = `echo "$line" | awk '{print $36}'`
     set by1 = `echo ${by} | cut -c1-4`
     set by2 = `echo ${by} | cut -c5-8`
     set by3 = `echo ${by} | cut -c9-12`
@@ -181,6 +197,8 @@ foreach line ( "`cat badruns.dat`" )
     echo "<tr align=${align} valign=${valign} bgcolor=#AAAAAA>" >> $fn
     echo "<td><b>Run Number</b></td><td><b>RL</b></td><td><b>SL</b></td>" >> $fn
     echo "<td><b>i</b></td>" >> $fn
+    echo "<td><b>fill</b></td>" >> $fn
+    echo "<td><b>config</b></td>" >> $fn
     echo "<td><b>t</b></td>" >> $fn
     echo "<td><b>failcode</b></td>" >> $fn
     echo "<td><b>JP0</b></td>" >> $fn
@@ -195,7 +213,9 @@ foreach line ( "`cat badruns.dat`" )
     echo "<td><b>DiBS</b></td>" >> $fn
     echo "<td><b>DiJP</b></td>" >> $fn
     echo "<td><b>LED</b></td>" >> $fn
-    echo "<td><b>BBC</b></td>" >> $fn
+    echo "<td><b>BBCMB</b></td>" >> $fn
+    echo "<td><b>ZDCMB</b></td>" >> $fn
+    echo "<td><b>VPDMB</b></td>" >> $fn
     echo "</tr>" >> $fn
   endif
   echo "<tr align=${align} valign=${valign} bgcolor=#EAEAEA>" >> $fn
@@ -203,8 +223,10 @@ foreach line ( "`cat badruns.dat`" )
   echo "<td><a href=http://online.star.bnl.gov/RunLog/index.php?r=${rn}>RL</a></td>" >> $fn
   echo "<td>" >> $fn
   if( ${sh} == "1") then
-    echo "<a href=http://online.star.bnl.gov/apps/shiftLog2012/logForFullTextSearch.jsp?text=${rn}>SL</a></td>" >> $fn
+    echo "<a href=http://online.star.bnl.gov/apps/shiftLog2015/logForFullTextSearch.jsp?text=${rn}>SL</a></td>" >> $fn
     echo "<td>${ii}</td>" >> $fn
+    echo "<td>${fill}</td>" >> $fn
+    echo "<td>${typ}</td>" >> $fn
     echo "<td>${tt}</td>" >> $fn
     echo "<td>${by1}.${by2}.${by3}.${by4}</td>" >> $fn
     echo "<td>${jp0}</td>" >> $fn
@@ -219,11 +241,13 @@ foreach line ( "`cat badruns.dat`" )
     echo "<td>${dibs}</td>" >> $fn
     echo "<td>${dijp}</td>" >> $fn
     echo "<td>${led}</td>" >> $fn
-    echo "<td>${mb}" >> $fn
+    echo "<td>${bbcmb}</td>" >> $fn
+    echo "<td>${zdcmb}</td>" >> $fn
+    echo "<td>${vpdmb}" >> $fn
   else if( ${sh} == "2") then
-    grep $rn shiftLog.dat | awk '{print substr($0, index($0,$2))}' | sed 's/\\n/<br \/>/g' >> $fn
+    #grep $rn shiftLog.dat | awk '{print substr($0, index($0,$2))}' | sed 's/\\n/<br \/>/g' >> $fn
   else
-    grep $rn shiftLog.dat | awk '{print substr($0, index($0,$2))}' | sed 's/\\n/<br \/>/g;s/http.*$//g' >> $fn
+    #grep $rn shiftLog.dat | awk '{print substr($0, index($0,$2))}' | sed 's/\\n/<br \/>/g;s/http.*$//g' >> $fn
   endif
   echo "</td>" >> $fn
 end
