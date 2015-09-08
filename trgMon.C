@@ -12,6 +12,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
 {
   gStyle->SetOptStat(0);
 
+  gStyle->SetOptFit(1);
 
   /* trigger list */
   ///////////////////////////////////////////////////
@@ -731,6 +732,8 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
     for(Int_t m=0; m<N_MB; m++)
     {
       lum_all[m]->SetPoint(lum_all_i[m],index,mb[m]*mb_ps[m]/(xsec[m]*pow(10,9)));
+        // n.b.: xsec in millibarns --> *10^-3; to report lumi in pb^-1, we
+        // multiply by factor 10^-9
       intlum_all[m] += mb[m]*mb_ps[m]/(xsec[m]*pow(10,9));
       lum_prog_all[m]->SetPoint(lum_all_i[m],index,intlum_all[m]);
       lum_all_i[m]++;

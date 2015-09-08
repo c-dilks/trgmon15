@@ -10,6 +10,6 @@ endif
 
 cd $BEAM
 
-cp -v *.html *.png goodruns.dat badruns.dat *.pdf /afs/rhic/star/doc_protected/www/docp11/spin/dilks/trgmon15/$BEAM/
+cp -v *.html *.png goodruns.dat badruns.dat *.pdf runlog.root /afs/rhic/star/doc_protected/www/docp11/spin/dilks/trgmon15/$BEAM/
 
 cd ..
