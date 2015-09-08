@@ -14,6 +14,7 @@ void trgMon(Int_t beam_en=200, Int_t trg=2, Int_t rCutType=0,Int_t rCut=0)
 
   gStyle->SetOptFit(1);
 
+
   /* trigger list */
   ///////////////////////////////////////////////////
   const Int_t N_TRIG = 12;
