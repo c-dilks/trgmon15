@@ -4,4 +4,6 @@
 *.png
 thresh/thfiles/*
 thresh/trgfiles/*
+thresh_qt/thfiles/*
+thresh_qt/trgfiles/*
 *.swp
